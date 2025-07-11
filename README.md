@@ -65,7 +65,7 @@ Deploys your application using deployphp and creates a GitHub release with an au
 ```yaml
 jobs:
   deploy:
-    uses: Kehet/shared-github-workflows/.github/workflows/deployphp-deployment.yml@main
+    uses: Kehet/shared-github-workflows/.github/workflows/deployer-deployment.yml@main
     # Optional parameters with their default values:
     with:
       php-version: '8.3'              # PHP version to use
