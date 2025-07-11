@@ -102,3 +102,19 @@ jobs:
       npm-build-command: 'npm run build' # Command to run npm build
       node-version: '18'              # Node.js version to use
 ```
+
+### JS Tests
+
+Runs tests for JavaScript applications.
+
+```yaml
+jobs:
+  tests:
+    uses: Kehet/shared-github-workflows/.github/workflows/js-tests.yml@main
+    # Optional parameters with their default values:
+    with:
+      install-composer: false         # Whether to install composer dependencies
+      php-version: '8.3'              # PHP version to use (only if install-composer is true)
+      php-extensions: 'dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_mysql, bcmath, soap, intl, gd, exif, iconv'  # PHP extensions to install (only if install-composer is true)
+      composer-install-options: '-n --prefer-dist'  # Options for composer install command
+```

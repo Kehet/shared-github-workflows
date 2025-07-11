@@ -2,6 +2,27 @@ name: Run tests
 
 on:
   workflow_call:
+    inputs:
+      install-composer:
+        description: 'Whether to install composer dependencies'
+        required: false
+        type: boolean
+        default: false
+      php-version:
+        description: 'PHP version to use'
+        required: false
+        type: string
+        default: '8.3'
+      php-extensions:
+        description: 'PHP extensions to install'
+        required: false
+        type: string
+        default: 'dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_mysql, bcmath, soap, intl, gd, exif, iconv'
+      composer-install-options:
+        description: 'Options for composer install command'
+        required: false
+        type: string
+        default: '-n --prefer-dist'
 
 jobs:
   tests:
@@ -12,6 +33,18 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
+
+      - name: Setup PHP
+        if: ${{ inputs.install-composer }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: ${{ inputs.php-extensions }}
+          coverage: none
+
+      - name: Install Composer dependencies
+        if: ${{ inputs.install-composer }}
+        run: composer install ${{ inputs.composer-install-options }}
 
       - name: Build
         run: |
