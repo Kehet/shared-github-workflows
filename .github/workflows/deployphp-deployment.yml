@@ -8,6 +8,10 @@ on:
         required: false
         type: string
         default: '8.3'
+    secrets:
+      private-key:
+        description: 'Private key for SSH connection'
+        required: true
 
 permissions:
   contents: write
@@ -37,7 +41,7 @@ jobs:
         uses: deployphp/action@v1
         with:
           dep: deploy
-          private-key: ${{ secrets.PRIVATE_KEY }}
+          private-key: ${{ secrets.private-key }}
 
       - name: Reset release-candidate branch on runner
         run: |
