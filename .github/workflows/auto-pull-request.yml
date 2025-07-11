@@ -6,6 +6,27 @@ name: Auto pull request
 
 on:
   workflow_call:
+    inputs:
+      source-branch:
+        description: 'Source branch to create PR from'
+        required: false
+        type: string
+        default: 'master'
+      target-branch:
+        description: 'Target branch to create PR to'
+        required: false
+        type: string
+        default: 'release-candidate'
+      pr-title-prefix:
+        description: 'Prefix for the PR title'
+        required: false
+        type: string
+        default: 'Release '
+      changelog-format:
+        description: 'Format for changelog entries'
+        required: false
+        type: string
+        default: '* %s'
 
 permissions:
   pull-requests: write
@@ -19,13 +40,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: master
+          ref: ${{ inputs.source-branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Reset release-candidate branch on runner
+      - name: Reset target branch on runner
         run: |
-          git fetch origin release-candidate:release-candidate
-          git reset --hard release-candidate
+          git fetch origin ${{ inputs.target-branch }}:${{ inputs.target-branch }}
+          git reset --hard ${{ inputs.target-branch }}
 
       - name: Build Changelog since the latest tag
         id: build_changelog
@@ -35,7 +56,7 @@ jobs:
 
           EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
           echo "CHANGELOG<<${EOF}" >> "${GITHUB_OUTPUT}"
-          echo "$(git log  --pretty=format:"* %b" --no-merges ${LATEST_TAG}..HEAD)" >> "${GITHUB_OUTPUT}"
+          echo "$(git log  --pretty=format:"${{ inputs.changelog-format }}" --no-merges ${LATEST_TAG}..HEAD)" >> "${GITHUB_OUTPUT}"
           echo "${EOF}" >> "${GITHUB_OUTPUT}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,6 +72,6 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: release-candidate
-          title: Release ${{ steps.title.outputs.pr_title }}
+          branch: ${{ inputs.target-branch }}
+          title: ${{ inputs.pr-title-prefix }}${{ steps.title.outputs.pr_title }}
           body: ${{ steps.build_changelog.outputs.changelog }}
