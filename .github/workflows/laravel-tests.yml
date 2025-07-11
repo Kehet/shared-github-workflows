@@ -33,11 +33,6 @@ on:
         required: false
         type: string
         default: 'password'
-      mysql-root-password:
-        description: 'MySQL root password'
-        required: false
-        type: string
-        default: 'password'
       env-file:
         description: 'Environment file to copy'
         required: false
@@ -58,6 +53,21 @@ on:
         required: false
         type: string
         default: 'php artisan test'
+      install-npm:
+        description: 'Whether to install npm packages'
+        required: false
+        type: boolean
+        default: false
+      npm-build-command:
+        description: 'Command to run npm build'
+        required: false
+        type: string
+        default: 'npm run build'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '18'
 
 
 permissions:
@@ -73,7 +83,7 @@ jobs:
         image: mysql:${{ inputs.mysql-version }}
         env:
           MYSQL_ROOT_HOST: '%'
-          MYSQL_ROOT_PASSWORD: ${{ inputs.mysql-root-password }}
+          MYSQL_ROOT_PASSWORD: ${{ inputs.mysql-password }}
           MYSQL_DATABASE: ${{ inputs.mysql-database }}
           MYSQL_USER: ${{ inputs.mysql-user }}
           MYSQL_PASSWORD: ${{ inputs.mysql-password }}
@@ -111,10 +121,35 @@ jobs:
         run: composer install ${{ inputs.composer-install-options }}
 
       - name: Prepare Laravel Application
+        env:
+          DB_CONNECTION: mysql
+          DB_DATABASE: ${{ inputs.mysql-database }}
+          DB_USERNAME: ${{ inputs.mysql-user }}
+          DB_PASSWORD: ${{ inputs.mysql-password }}
         run: |
           cp ${{ inputs.env-file }} .env
           php artisan key:generate
           ${{ inputs.run-migrations && 'php artisan migrate' || 'echo "Skipping migrations"' }}
 
+      - name: Setup Node.js
+        if: ${{ inputs.install-npm }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        if: ${{ inputs.install-npm }}
+        run: npm ci
+
+      - name: Build assets
+        if: ${{ inputs.install-npm }}
+        run: ${{ inputs.npm-build-command }}
+
       - name: Run tests
+        env:
+          DB_CONNECTION: mysql
+          DB_DATABASE: ${{ inputs.mysql-database }}
+          DB_USERNAME: ${{ inputs.mysql-user }}
+          DB_PASSWORD: ${{ inputs.mysql-password }}
         run: ${{ inputs.test-command }}

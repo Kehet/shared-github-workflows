@@ -94,9 +94,11 @@ jobs:
       mysql-database: 'testing'       # MySQL database name
       mysql-user: 'testing'           # MySQL username
       mysql-password: 'password'      # MySQL password
-      mysql-root-password: 'password' # MySQL root password
       env-file: '.env.ci'             # Environment file to copy
       composer-install-options: '-n --prefer-dist'  # Options for composer install command
       run-migrations: true            # Whether to run migrations
       test-command: 'php artisan test' # Command to run tests
+      install-npm: false              # Whether to install npm packages
+      npm-build-command: 'npm run build' # Command to run npm build
+      node-version: '18'              # Node.js version to use
 ```
