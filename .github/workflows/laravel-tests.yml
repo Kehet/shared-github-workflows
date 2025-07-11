@@ -1,8 +1,6 @@
 name: Run tests
 
 on:
-  push:
-  workflow_dispatch:
   workflow_call:
     inputs:
       php-version:
