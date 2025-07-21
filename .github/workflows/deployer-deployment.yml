@@ -103,6 +103,8 @@ jobs:
 
       - name: Update target branch
         run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git checkout ${{ inputs.source-branch }}
           git fetch origin
           git checkout ${{ inputs.target-branch }}
