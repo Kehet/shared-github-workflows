@@ -64,12 +64,6 @@ jobs:
       - name: Install deployer
         run: composer require --dev deployer/deployer
 
-      - name: Deploy
-        uses: deployphp/action@v1
-        with:
-          dep: "${{ inputs.deployer-command }} --option release-name=\"${{ steps.release_name.outputs.release_name }}\""
-          private-key: ${{ secrets.private-key }}
-
       - name: Reset target branch on runner
         run: |
           git fetch origin ${{ inputs.target-branch }}:${{ inputs.target-branch }}
@@ -94,6 +88,12 @@ jobs:
           DATE=$(date +%Y-%m-%d)
           SEPERATOR="-"
           for LETTER in {a..z}; do if [[ "$DATE$SEPARATOR$LETTER" > "${{ steps.build_changelog.outputs.latest_tag }}" ]]; then echo "pr_title=$DATE$SEPARATOR$LETTER" >> $GITHUB_OUTPUT && break; fi; done
+
+      - name: Deploy
+        uses: deployphp/action@v1
+        with:
+          dep: "${{ inputs.deployer-command }} --option release-name=${{ steps.release_name.outputs.release_name }}"
+          private-key: ${{ secrets.private-key }}
 
       - name: Create a GitHub release
         uses: actions/create-release@v1
