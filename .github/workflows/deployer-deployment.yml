@@ -67,9 +67,8 @@ jobs:
       - name: Deploy
         uses: deployphp/action@v1
         with:
-          dep: ${{ inputs.deployer-command }}
+          dep: "${{ inputs.deployer-command }} --option release-name=\"${{ steps.release_name.outputs.release_name }}\""
           private-key: ${{ secrets.private-key }}
-          options: '{"release-name": "${{ steps.release_name.outputs.release_name }}"}'
 
       - name: Reset target branch on runner
         run: |
