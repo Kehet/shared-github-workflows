@@ -44,6 +44,10 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
+    environment:
+      name: production
+      
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -65,7 +69,8 @@ jobs:
         with:
           dep: ${{ inputs.deployer-command }}
           private-key: ${{ secrets.private-key }}
-          options: "--release-name=${{ steps.release_name.outputs.release_name }}"
+          options:
+            release-name: "${{ steps.release_name.outputs.release_name }}"
 
       - name: Reset target branch on runner
         run: |
