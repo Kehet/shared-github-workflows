@@ -65,6 +65,7 @@ jobs:
         with:
           dep: ${{ inputs.deployer-command }}
           private-key: ${{ secrets.private-key }}
+          options: "--release-name=${{ steps.release_name.outputs.release_name }}"
 
       - name: Reset target branch on runner
         run: |
